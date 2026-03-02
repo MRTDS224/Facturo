@@ -1,0 +1,15 @@
+com\facturo\controller\DashboardController.class
+com\facturo\controller\HistoryController.class
+com\facturo\service\InvoiceService.class
+com\facturo\model\Client.class
+com\facturo\controller\ClientController.class
+com\facturo\controller\InvoiceController.class
+com\facturo\service\ClientService.class
+com\facturo\model\InvoiceItem.class
+module-info.class
+com\facturo\controller\InvoiceController$1.class
+com\facturo\service\SettingsService.class
+com\facturo\service\DatabaseService.class
+com\facturo\App.class
+com\facturo\model\Invoice.class
+com\facturo\service\PdfGenerationService.class

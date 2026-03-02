@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.facturo.controller.InvoiceController" spacing="10" style="-fx-padding: 20;">
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Nouvelle Facture" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Paramètres ⚙" onAction="#handleSettings" style="-fx-base: #2196F3; -fx-text-fill: white;"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Client:" />
+        <ComboBox fx:id="clientComboBox" promptText="Sélectionner un client" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="+" onAction="#handleAddClient" style="-fx-font-weight: bold;"/>
+    </HBox>
+
+    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 50;">
+        <CheckBox fx:id="chkAddress" text="Inclure Adresse" selected="true"/>
+        <CheckBox fx:id="chkPhone" text="Inclure Téléphone" selected="true"/>
+        <CheckBox fx:id="chkEmail" text="Inclure Email" selected="true"/>
+    </HBox>
+
+    <Separator />
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="descriptionField" promptText="Description" HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="quantityField" promptText="Qté" prefWidth="60"/>
+        <TextField fx:id="priceField" promptText="Prix Unitaire" prefWidth="100"/>
+        <Button text="Ajouter" onAction="#addItem"/>
+    </HBox>
+
+    <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="250"/>
+            <TableColumn fx:id="colQuantity" text="Qté" prefWidth="50"/>
+            <TableColumn fx:id="colPrice" text="Prix Uni." prefWidth="100"/>
+            <TableColumn fx:id="colTotal" text="Total" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Supprimer Item" onAction="#removeItem" style="-fx-text-fill: red;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Total: " style="-fx-font-weight: bold;"/>
+        <Label fx:id="totalLabel" text="0.00" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+        <Button text="Annuler" onAction="#goBack"/>
+        <Button text="Enregistrer &amp; PDF" onAction="#saveAndExport" style="-fx-base: #4CAF50; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>

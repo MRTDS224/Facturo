@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.facturo.controller.HistoryController" spacing="10" style="-fx-padding: 20;">
+    <Label text="Historique des Factures" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="invoiceTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colInvoiceNumber" text="Numéro" prefWidth="150"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="colCustomer" text="Client" prefWidth="200"/>
+            <TableColumn fx:id="colTotal" text="Total" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Retour" onAction="#goBack"/>
+        <Button text="Exporter Sélection" onAction="#exportSelected" style="-fx-base: #2196F3; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>
