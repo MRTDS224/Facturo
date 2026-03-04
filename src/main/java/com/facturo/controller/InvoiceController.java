@@ -164,18 +164,75 @@ public class InvoiceController {
 
     @FXML
     private void handleSettings() {
-        String currentHeader = settingsService.getSetting("invoice_header_text", "FACTURO - FACTURE");
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Paramètres de l'entreprise");
+        dialog.setHeaderText("Modifier les informations de l'entreprise");
 
-        TextInputDialog dialog = new TextInputDialog(currentHeader);
-        dialog.setTitle("Paramètres de la facture");
-        dialog.setHeaderText("Modifier l'en-tête de la facture");
-        dialog.setContentText("En-tête :");
+        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(newHeader -> {
-            settingsService.saveSetting("invoice_header_text", newHeader);
-            showAlert("Succès", "Paramètres sauvegardés avec succès.");
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField companyName = new TextField(settingsService.getSetting("company_name", "Facturo Entreprise"));
+        companyName.setPromptText("Nom de l'entreprise");
+        TextField companyAddress = new TextField(settingsService.getSetting("company_address", ""));
+        companyAddress.setPromptText("Adresse");
+        TextField companyPhone = new TextField(settingsService.getSetting("company_phone", ""));
+        companyPhone.setPromptText("Téléphone");
+        TextField companyEmail = new TextField(settingsService.getSetting("company_email", ""));
+        companyEmail.setPromptText("Email");
+
+        // Logo selection
+        TextField companyLogo = new TextField(settingsService.getSetting("company_logo", ""));
+        companyLogo.setPromptText("Chemin du Logo");
+        companyLogo.setEditable(false);
+        Button browseLogoBtn = new Button("Parcourir...");
+        browseLogoBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Sélectionner un logo");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+            File selectedFile = fileChooser.showOpenDialog(dialog.getDialogPane().getScene().getWindow());
+            if (selectedFile != null) {
+                companyLogo.setText(selectedFile.getAbsolutePath());
+            }
         });
+
+        grid.add(new Label("Nom:"), 0, 0);
+        grid.add(companyName, 1, 0);
+        grid.add(new Label("Adresse:"), 0, 1);
+        grid.add(companyAddress, 1, 1);
+        grid.add(new Label("Téléphone:"), 0, 2);
+        grid.add(companyPhone, 1, 2);
+        grid.add(new Label("Email:"), 0, 3);
+        grid.add(companyEmail, 1, 3);
+        grid.add(new Label("Logo:"), 0, 4);
+        grid.add(companyLogo, 1, 4);
+        grid.add(browseLogoBtn, 2, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                settingsService.saveSetting("company_name", companyName.getText());
+                settingsService.saveSetting("company_address", companyAddress.getText());
+                settingsService.saveSetting("company_phone", companyPhone.getText());
+                settingsService.saveSetting("company_email", companyEmail.getText());
+                settingsService.saveSetting("company_logo", companyLogo.getText());
+
+                // Keep the old header setting just in case it's used elsewhere, or just
+                // override it.
+                settingsService.saveSetting("invoice_header_text", companyName.getText());
+
+                showAlert("Succès", "Paramètres sauvegardés avec succès.");
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
     }
 
     @FXML
