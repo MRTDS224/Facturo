@@ -1,6 +1,7 @@
 com\facturo\controller\DashboardController.class
 com\facturo\controller\HistoryController.class
 com\facturo\service\InvoiceService.class
+com\facturo\Launcher.class
 com\facturo\model\Client.class
 com\facturo\controller\ClientController.class
 com\facturo\controller\InvoiceController.class
