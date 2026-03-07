@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseService {
-    private static final String URL = "jdbc:sqlite:facturo.db";
+    private static String getDbUrl() {
+        return "jdbc:sqlite:" + LogService.getAppDir() + java.io.File.separator + "facturo.db";
+    }
 
     public static void initialize() {
         try (Connection conn = getConnection();
@@ -42,6 +44,8 @@ public class DatabaseService {
                     "phone TEXT," +
                     "email TEXT" +
                     ");";
+            stmt.execute(sqlClients);
+
             // Settings table
             String sqlSettings = "CREATE TABLE IF NOT EXISTS settings (" +
                     "key TEXT PRIMARY KEY," +
@@ -57,6 +61,6 @@ public class DatabaseService {
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL);
+        return DriverManager.getConnection(getDbUrl());
     }
 }

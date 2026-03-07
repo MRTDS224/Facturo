@@ -149,11 +149,12 @@
                             <classPath>
                                 <mainClass>com.facturo.Launcher</mainClass>
                                 <addDependencies>false</addDependencies>
-                                <preCp>anything</preCp>
                             </classPath>
                             <jre>
+                                <path>jre</path>
+                                <bundledJre64Bit>true</bundledJre64Bit>
+                                <bundledJreAsFallback>false</bundledJreAsFallback>
                                 <minVersion>21.0.0</minVersion>
-                                <path>%JAVA_HOME%;%PATH%</path>
                             </jre>
                             <versionInfo>
                                 <fileVersion>1.0.0.0</fileVersion>

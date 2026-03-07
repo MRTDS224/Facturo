@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 
 public class ClientService {
 
-    public boolean addClient(Client client) {
+    public String addClient(Client client) {
         String sql = "INSERT INTO clients(name, address, phone, email) VALUES(?, ?, ?, ?)";
         try (Connection conn = DatabaseService.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -17,10 +17,14 @@ public class ClientService {
             pstmt.setString(3, client.getPhone());
             pstmt.setString(4, client.getEmail());
             pstmt.executeUpdate();
-            return true;
+            LogService.info("Client added successfully: " + client.getName());
+            return "SUCCESS";
         } catch (SQLException e) {
-            System.err.println("Error adding client: " + e.getMessage());
-            return false;
+            LogService.error("Error adding client: " + client.getName(), e);
+            if (e.getMessage() != null && e.getMessage().contains("UNIQUE constraint failed: clients.name")) {
+                return "Ce nom de client existe déjà dans la base de données.";
+            }
+            return "Erreur d'enregistrement: " + e.getMessage();
         }
     }
 

@@ -15,6 +15,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "target\Facturo.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "target\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Facturo"; Filename: "{app}\Facturo.exe"

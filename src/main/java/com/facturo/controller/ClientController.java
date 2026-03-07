@@ -58,7 +58,8 @@ public class ClientController {
         }
 
         Client client = new Client(name, address, phone, email);
-        if (clientService.addClient(client)) {
+        String result = clientService.addClient(client);
+        if ("SUCCESS".equals(result)) {
             loadClients();
             nameField.clear();
             addressField.clear();
@@ -66,7 +67,7 @@ public class ClientController {
             emailField.clear();
             showAlert("Succès", "Client ajouté !");
         } else {
-            showAlert("Erreur", "Impossible d'ajouter le client (Nom déjà existant ?).");
+            showAlert("Erreur", result);
         }
     }
 

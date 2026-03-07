@@ -213,6 +213,19 @@ public class InvoiceController {
         grid.add(companyLogo, 1, 4);
         grid.add(browseLogoBtn, 2, 4);
 
+        // Logs Export
+        Button openLogsBtn = new Button("Ouvrir dossier Logs");
+        openLogsBtn.setOnAction(e -> {
+            try {
+                String cmd = "explorer.exe"; // Windows Specific
+                new ProcessBuilder(cmd, com.facturo.service.LogService.getAppDir()).start();
+            } catch (Exception ex) {
+                com.facturo.service.LogService.error("Failed to open log folder", ex);
+                showAlert("Erreur", "Impossible d'ouvrir le dossier des journaux.");
+            }
+        });
+        grid.add(openLogsBtn, 1, 5);
+
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(dialogButton -> {
@@ -281,7 +294,8 @@ public class InvoiceController {
         Optional<Client> result = dialog.showAndWait();
 
         result.ifPresent(client -> {
-            if (clientService.addClient(client)) {
+            String addResult = clientService.addClient(client);
+            if ("SUCCESS".equals(addResult)) {
                 clientComboBox.setItems(clientService.getAllClients());
                 // Sélect the newly added client
                 for (Client c : clientComboBox.getItems()) {
@@ -291,7 +305,7 @@ public class InvoiceController {
                     }
                 }
             } else {
-                showAlert("Erreur", "Impossible d'ajouter le client.");
+                showAlert("Erreur", addResult);
             }
         });
     }
