@@ -7,6 +7,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import java.io.IOException;
+import java.util.Optional;
+import javafx.scene.layout.GridPane;
+import javafx.geometry.Insets;
 
 public class ClientController {
 
@@ -38,6 +41,15 @@ public class ClientController {
         colPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
 
+        // Setup Context Menu for Edit/Delete
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem editItem = new MenuItem("Modifier");
+        editItem.setOnAction(e -> editClient());
+        MenuItem deleteItem = new MenuItem("Supprimer");
+        deleteItem.setOnAction(e -> deleteSelectedClient());
+        contextMenu.getItems().addAll(editItem, deleteItem);
+        clientTable.setContextMenu(contextMenu);
+
         loadClients();
     }
 
@@ -68,6 +80,87 @@ public class ClientController {
             showAlert("Succès", "Client ajouté !");
         } else {
             showAlert("Erreur", result);
+        }
+    }
+
+    @FXML
+    private void editClient() {
+        Client selected = clientTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Erreur", "Veuillez sélectionner un client à modifier.");
+            return;
+        }
+
+        Dialog<Client> dialog = new Dialog<>();
+        dialog.setTitle("Modifier Client");
+        dialog.setHeaderText("Modifier les informations du client");
+
+        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField name = new TextField(selected.getName());
+        TextField address = new TextField(selected.getAddress());
+        TextField phone = new TextField(selected.getPhone());
+        TextField email = new TextField(selected.getEmail());
+
+        grid.add(new Label("Nom:"), 0, 0);
+        grid.add(name, 1, 0);
+        grid.add(new Label("Adresse:"), 0, 1);
+        grid.add(address, 1, 1);
+        grid.add(new Label("Téléphone:"), 0, 2);
+        grid.add(phone, 1, 2);
+        grid.add(new Label("Email:"), 0, 3);
+        grid.add(email, 1, 3);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                if (name.getText().isEmpty())
+                    return null;
+                return new Client(name.getText(), address.getText(), phone.getText(), email.getText());
+            }
+            return null;
+        });
+
+        Optional<Client> result = dialog.showAndWait();
+
+        result.ifPresent(client -> {
+            String updateRes = clientService.updateClient(selected.getName(), client);
+            if ("SUCCESS".equals(updateRes)) {
+                loadClients();
+                showAlert("Succès", "Client modifié avec succès.");
+            } else {
+                showAlert("Erreur", updateRes);
+            }
+        });
+    }
+
+    @FXML
+    private void deleteSelectedClient() {
+        Client selected = clientTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Voulez-vous vraiment supprimer le client " + selected.getName() + " ?", ButtonType.YES,
+                    ButtonType.NO);
+            confirm.setHeaderText("Confirmation de suppression");
+            confirm.showAndWait();
+            if (confirm.getResult() == ButtonType.YES) {
+                String res = clientService.deleteClient(selected.getName());
+                if ("SUCCESS".equals(res)) {
+                    loadClients();
+                    showAlert("Succès", "Client supprimé avec succès.");
+                } else {
+                    showAlert("Erreur", res);
+                }
+            }
+        } else {
+            showAlert("Erreur", "Veuillez sélectionner un client à supprimer.");
         }
     }
 

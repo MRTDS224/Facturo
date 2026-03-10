@@ -144,6 +144,7 @@
                         <configuration>
                             <headerType>gui</headerType>
                             <outfile>${project.build.directory}/Facturo.exe</outfile>
+                            <icon>src/main/resources/com/facturo/facturo.ico</icon>
                             <jar>${project.build.directory}/${project.build.finalName}.jar</jar>
                             <errTitle>Facturo Error</errTitle>
                             <classPath>

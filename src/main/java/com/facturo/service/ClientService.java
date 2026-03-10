@@ -28,6 +28,50 @@ public class ClientService {
         }
     }
 
+    public String updateClient(String oldName, Client updatedClient) {
+        String sql = "UPDATE clients SET name = ?, address = ?, phone = ?, email = ? WHERE name = ?";
+        try (Connection conn = DatabaseService.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, updatedClient.getName());
+            pstmt.setString(2, updatedClient.getAddress());
+            pstmt.setString(3, updatedClient.getPhone());
+            pstmt.setString(4, updatedClient.getEmail());
+            pstmt.setString(5, oldName);
+            pstmt.executeUpdate();
+            LogService.info("Client updated successfully: " + updatedClient.getName());
+            return "SUCCESS";
+        } catch (SQLException e) {
+            LogService.error("Error updating client: " + updatedClient.getName(), e);
+            if (e.getMessage() != null && e.getMessage().contains("UNIQUE constraint failed: clients.name")) {
+                return "Ce nom de client existe déjà dans la base de données.";
+            }
+            return "Erreur de mise à jour: " + e.getMessage();
+        }
+    }
+
+    public String deleteClient(String name) {
+        String sql = "DELETE FROM clients WHERE name = ?";
+        try (Connection conn = DatabaseService.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, name);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                LogService.info("Client deleted successfully: " + name);
+                return "SUCCESS";
+            } else {
+                return "Client non trouvé.";
+            }
+        } catch (SQLException e) {
+            LogService.error("Error deleting client: " + name, e);
+            if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                return "Impossible de supprimer ce client car des factures lui sont associées.";
+            }
+            return "Erreur de suppression: " + e.getMessage();
+        }
+    }
+
     public ObservableList<Client> getAllClients() {
         ObservableList<Client> clients = FXCollections.observableArrayList();
         String sql = "SELECT * FROM clients";

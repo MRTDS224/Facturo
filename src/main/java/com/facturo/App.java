@@ -21,6 +21,7 @@ public class App extends Application {
         scene = new Scene(loadFXML("view/dashboard"), 800, 600);
         stage.setScene(scene);
         stage.setTitle("Facturo - Gestion de Facturation");
+        stage.getIcons().add(new javafx.scene.image.Image(App.class.getResourceAsStream("/com/facturo/icon.png")));
         stage.show();
     }
 

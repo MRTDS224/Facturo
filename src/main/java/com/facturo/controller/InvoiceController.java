@@ -70,6 +70,15 @@ public class InvoiceController {
         itemsTable.setItems(currentItems);
         updateTotal();
 
+        // Setup Context Menu for Edit/Delete
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem editItem = new MenuItem("Modifier");
+        editItem.setOnAction(e -> editItem());
+        MenuItem deleteItem = new MenuItem("Supprimer");
+        deleteItem.setOnAction(e -> removeItem());
+        contextMenu.getItems().addAll(editItem, deleteItem);
+        itemsTable.setContextMenu(contextMenu);
+
         // Setup Client ComboBox
         clientComboBox.setItems(clientService.getAllClients());
         clientComboBox.setConverter(new StringConverter<Client>() {
@@ -87,29 +96,47 @@ public class InvoiceController {
 
     @FXML
     private void addItem() {
-        try {
-            String desc = descriptionField.getText();
-            int qty = Integer.parseInt(quantityField.getText());
-            double price = Double.parseDouble(priceField.getText());
+        String desc = descriptionField.getText();
 
-            if (desc.isEmpty() || qty <= 0 || price < 0) {
-                showAlert("Erreur", "Veuillez vérifier les champs.");
+        if (desc == null || desc.trim().isEmpty()) {
+            showAlert("Erreur", "La description de l'article est obligatoire.");
+            return;
+        }
+
+        int qty;
+        try {
+            qty = Integer.parseInt(quantityField.getText().trim());
+            if (qty <= 0) {
+                showAlert("Erreur", "La quantité doit être supérieure à zéro.");
                 return;
             }
-
-            InvoiceItem item = new InvoiceItem(desc, qty, price);
-            currentItems.add(item);
-
-            // Clear inputs
-            descriptionField.clear();
-            quantityField.clear();
-            priceField.clear();
-            descriptionField.requestFocus();
-
-            updateTotal();
         } catch (NumberFormatException e) {
-            showAlert("Erreur", "Format de nombre invalide.");
+            showAlert("Erreur", "Le format de la quantité est invalide.\nVeuillez entrer un nombre entier positif.");
+            return;
         }
+
+        double price;
+        try {
+            price = Double.parseDouble(priceField.getText().replace(",", ".").trim());
+            if (price < 0) {
+                showAlert("Erreur", "Le prix unitaire ne peut pas être négatif.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Erreur", "Le format du prix est invalide.\nVeuillez entrer un montant numérique correct.");
+            return;
+        }
+
+        InvoiceItem item = new InvoiceItem(desc, qty, price);
+        currentItems.add(item);
+
+        // Clear inputs
+        descriptionField.clear();
+        quantityField.clear();
+        priceField.clear();
+        descriptionField.requestFocus();
+
+        updateTotal();
     }
 
     @FXML
@@ -119,6 +146,84 @@ public class InvoiceController {
             currentItems.remove(selected);
             updateTotal();
         }
+    }
+
+    @FXML
+    private void editItem() {
+        InvoiceItem selected = itemsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Erreur", "Veuillez sélectionner un article à modifier.");
+            return;
+        }
+
+        Dialog<InvoiceItem> dialog = new Dialog<>();
+        dialog.setTitle("Modifier l'article");
+        dialog.setHeaderText("Modifier les détails de l'article");
+
+        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField descField = new TextField(selected.getDescription());
+        TextField qtyField = new TextField(String.valueOf(selected.getQuantity()));
+        TextField prcField = new TextField(String.valueOf(selected.getUnitPrice()));
+
+        grid.add(new Label("Description:"), 0, 0);
+        grid.add(descField, 1, 0);
+        grid.add(new Label("Quantité:"), 0, 1);
+        grid.add(qtyField, 1, 1);
+        grid.add(new Label("Prix unitaire:"), 0, 2);
+        grid.add(prcField, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String desc = descField.getText();
+                if (desc == null || desc.trim().isEmpty()) {
+                    showAlert("Erreur", "La description de l'article est obligatoire.");
+                    return null;
+                }
+                int qty;
+                try {
+                    qty = Integer.parseInt(qtyField.getText().trim());
+                    if (qty <= 0) {
+                        showAlert("Erreur", "La quantité doit être supérieure à zéro.");
+                        return null;
+                    }
+                } catch (NumberFormatException e) {
+                    showAlert("Erreur", "Le format de la quantité est invalide.");
+                    return null;
+                }
+                double price;
+                try {
+                    price = Double.parseDouble(prcField.getText().replace(",", ".").trim());
+                    if (price < 0) {
+                        showAlert("Erreur", "Le prix unitaire ne peut pas être négatif.");
+                        return null;
+                    }
+                } catch (NumberFormatException e) {
+                    showAlert("Erreur", "Le format du prix est invalide.");
+                    return null;
+                }
+                return new InvoiceItem(desc, qty, price);
+            }
+            return null;
+        });
+
+        Optional<InvoiceItem> result = dialog.showAndWait();
+
+        result.ifPresent(item -> {
+            selected.setDescription(item.getDescription());
+            selected.setQuantity(item.getQuantity());
+            selected.setUnitPrice(item.getUnitPrice());
+            itemsTable.refresh();
+            updateTotal();
+        });
     }
 
     private void updateTotal() {
