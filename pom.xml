@@ -91,6 +91,10 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>com.facturo.App</mainClass>
+                            <options>
+                                <option>--add-exports</option>
+                                <option>javafx.base/com.sun.javafx.event=org.controlsfx.controls</option>
+                            </options>
                             <launcher>app</launcher>
                             <jlinkImageName>app</jlinkImageName>
                             <noManPages>true</noManPages>

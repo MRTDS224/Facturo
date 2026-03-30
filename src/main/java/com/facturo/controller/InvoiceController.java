@@ -131,8 +131,21 @@ public class InvoiceController {
             return;
         }
 
-        InvoiceItem item = new InvoiceItem(desc, qty, price);
-        currentItems.add(item);
+        boolean found = false;
+        for (InvoiceItem existingItem : currentItems) {
+            if (existingItem.getDescription().equalsIgnoreCase(desc) && existingItem.getUnitPrice() == price) {
+                existingItem.setQuantity(existingItem.getQuantity() + qty);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            InvoiceItem item = new InvoiceItem(desc, qty, price);
+            currentItems.add(item);
+        }
+
+        itemsTable.refresh();
 
         // Clear inputs
         descriptionField.clear();
