@@ -1,4 +1,0 @@
---patch-module
-com.facturo=_
---add-reads
-com.facturo=ALL-UNNAMED

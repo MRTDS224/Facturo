@@ -1,0 +1,5 @@
+target/
+*.class
+*.log
+*.sqlite
+facturo.db
