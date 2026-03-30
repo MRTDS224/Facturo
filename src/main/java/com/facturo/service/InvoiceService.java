@@ -6,6 +6,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import java.util.List;
+import java.util.ArrayList;
 
 public class InvoiceService {
 
@@ -88,5 +90,23 @@ public class InvoiceService {
         } catch (SQLException e) {
             System.err.println("Error loading invoice items: " + e.getMessage());
         }
+    }
+
+    public List<String> getDistinctDescriptions() {
+        List<String> descriptions = new ArrayList<>();
+        String sql = "SELECT DISTINCT description FROM invoice_items WHERE description IS NOT NULL AND description != ''";
+
+        try (Connection conn = DatabaseService.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                descriptions.add(rs.getString("description"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error loading descriptions: " + e.getMessage());
+        }
+        return descriptions;
     }
 }

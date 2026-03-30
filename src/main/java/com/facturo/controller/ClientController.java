@@ -10,8 +10,13 @@ import java.io.IOException;
 import java.util.Optional;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 
 public class ClientController {
+
+    @FXML
+    private TextField searchField;
 
     @FXML
     private TextField nameField;
@@ -33,6 +38,8 @@ public class ClientController {
     private TableColumn<Client, String> colEmail;
 
     private final ClientService clientService = new ClientService();
+    private ObservableList<Client> allClients;
+    private FilteredList<Client> filteredClients;
 
     @FXML
     public void initialize() {
@@ -51,10 +58,30 @@ public class ClientController {
         clientTable.setContextMenu(contextMenu);
 
         loadClients();
+        
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (filteredClients != null) {
+                    filteredClients.setPredicate(client -> {
+                        if (newValue == null || newValue.isEmpty()) {
+                            return true;
+                        }
+                        String lowerCaseFilter = newValue.toLowerCase();
+                        return client.getPhone() != null && client.getPhone().toLowerCase().contains(lowerCaseFilter);
+                    });
+                }
+            });
+        }
     }
 
     private void loadClients() {
-        clientTable.setItems(clientService.getAllClients());
+        allClients = clientService.getAllClients();
+        filteredClients = new FilteredList<>(allClients, p -> true);
+        if (searchField != null && searchField.getText() != null && !searchField.getText().isEmpty()) {
+             String lowerCaseFilter = searchField.getText().toLowerCase();
+             filteredClients.setPredicate(client -> client.getPhone() != null && client.getPhone().toLowerCase().contains(lowerCaseFilter));
+        }
+        clientTable.setItems(filteredClients);
     }
 
     @FXML

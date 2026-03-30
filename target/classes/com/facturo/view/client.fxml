@@ -8,6 +8,10 @@
     <Label text="Gestion des Clients" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Rechercher par téléphone..." HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
         <TextField fx:id="nameField" promptText="Nom" HBox.hgrow="ALWAYS"/>
         <TextField fx:id="addressField" promptText="Adresse" HBox.hgrow="ALWAYS"/>
         <TextField fx:id="phoneField" promptText="Téléphone" prefWidth="120"/>

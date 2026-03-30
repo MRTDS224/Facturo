@@ -51,6 +51,6 @@
 
     <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
         <Button text="Annuler" onAction="#goBack"/>
-        <Button text="Enregistrer &amp; PDF" onAction="#saveAndExport" style="-fx-base: #4CAF50; -fx-text-fill: white;"/>
+        <Button text="Imprimer" onAction="#saveAndExport" style="-fx-base: #4CAF50; -fx-text-fill: white;"/>
     </HBox>
 </VBox>

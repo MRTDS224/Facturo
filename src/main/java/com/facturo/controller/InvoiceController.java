@@ -24,6 +24,7 @@ import com.facturo.model.Client;
 import com.facturo.service.ClientService;
 import com.facturo.service.SettingsService;
 import javafx.scene.control.TextInputDialog;
+import org.controlsfx.control.textfield.TextFields;
 
 public class InvoiceController {
 
@@ -92,6 +93,9 @@ public class InvoiceController {
                 return null;
             }
         });
+
+        // Setup Autocomplete for description
+        TextFields.bindAutoCompletion(descriptionField, invoiceService.getDistinctDescriptions());
     }
 
     @FXML
@@ -111,7 +115,7 @@ public class InvoiceController {
                 return;
             }
         } catch (NumberFormatException e) {
-            showAlert("Erreur", "Le format de la quantité est invalide.\nVeuillez entrer un nombre entier positif.");
+            showAlert("Erreur", "Le format de la quantité est invalide.\nVeuillez entrer un nombre entier positif dans la colonne Quantité.");
             return;
         }
 
@@ -123,7 +127,7 @@ public class InvoiceController {
                 return;
             }
         } catch (NumberFormatException e) {
-            showAlert("Erreur", "Le format du prix est invalide.\nVeuillez entrer un montant numérique correct.");
+            showAlert("Erreur", "Le format du prix est invalide.\nVeuillez entrer un montant numérique correct dans la colonne Prix Unitaire.");
             return;
         }
 
@@ -196,7 +200,7 @@ public class InvoiceController {
                         return null;
                     }
                 } catch (NumberFormatException e) {
-                    showAlert("Erreur", "Le format de la quantité est invalide.");
+                    showAlert("Erreur", "Le format de la quantité est invalide.\nLa colonne Quantité nécessite un nombre entier.");
                     return null;
                 }
                 double price;
@@ -207,7 +211,7 @@ public class InvoiceController {
                         return null;
                     }
                 } catch (NumberFormatException e) {
-                    showAlert("Erreur", "Le format du prix est invalide.");
+                    showAlert("Erreur", "Le format du prix est invalide.\nLa colonne Prix Unitaire nécessite un montant numérique.");
                     return null;
                 }
                 return new InvoiceItem(desc, qty, price);
@@ -234,8 +238,40 @@ public class InvoiceController {
     @FXML
     private void saveAndExport() {
         Client selectedClient = clientComboBox.getValue();
-        if (selectedClient == null || currentItems.isEmpty()) {
-            showAlert("Erreur", "Veuillez sélectionner un client et ajouter des articles.");
+        if (selectedClient == null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Client manquant");
+            alert.setHeaderText("Aucun client n'a été sélectionné.");
+            alert.setContentText("Voulez-vous choisir un client existant ou ajouter un nouveau client ?");
+
+            ButtonType btnExistant = new ButtonType("Client Existant");
+            ButtonType btnNouveau = new ButtonType("Nouveau Client");
+            ButtonType btnAnnuler = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(btnExistant, btnNouveau, btnAnnuler);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == btnExistant) {
+                    clientComboBox.requestFocus();
+                    clientComboBox.show();
+                    return;
+                } else if (result.get() == btnNouveau) {
+                    handleAddClient();
+                    selectedClient = clientComboBox.getValue();
+                    if (selectedClient == null) {
+                        return; // They cancelled the add client dialog
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        
+        if (currentItems.isEmpty()) {
+            showAlert("Erreur", "Veuillez ajouter des articles à la facture.");
             return;
         }
 
